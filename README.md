@@ -46,4 +46,9 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 # create react app
 
 npx create-react-app . --template redux-typescript --use-npm
+
 # comment_and_like_front
+
+# axios
+
+npm install axios
