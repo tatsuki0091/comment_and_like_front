@@ -6,6 +6,13 @@ export interface PROPS_LIKED {
 }
 
 export interface PROPS_COMMENT {
+    user_id:number;
     text: string;
-    post: number;
+
+}
+
+export interface PROPS_LOGIN {
+    email: string;
+    password: string;
+
 }

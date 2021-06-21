@@ -1,10 +1,10 @@
 import React from "react";
-import Post from "../post/Post";
+import Login from "../login/Login";
 
 const Top = () => {
   return (
     <div>
-      <Post />
+      <Login />
     </div>
   );
 };

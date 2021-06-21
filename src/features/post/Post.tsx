@@ -1,8 +1,34 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./Post.module.css";
+import {
+  fetchPostStart,
+  fetchPostEnd,
+  fetchAsyncPostComment,
+} from "./postSlice";
+import { AppDispatch } from "../../app/store";
+import { useSelector, useDispatch } from "react-redux";
 
 const Post: React.FC = () => {
   const [text, setText] = useState("");
+  const dispatch: AppDispatch = useDispatch();
+  const postComment = async (e: React.MouseEvent<HTMLElement>) => {
+    // 無駄なリフレッシュを無効化
+    e.preventDefault();
+    const packet = {
+      user_id: Number(localStorage.getItem("user_id")),
+      text: text,
+    };
+    console.log(packet);
+    await dispatch(fetchPostStart());
+    await dispatch(fetchAsyncPostComment(packet));
+    await dispatch(fetchPostEnd());
+    setText("");
+  };
+
+  useEffect(() => {
+    const getUser = async () => {};
+    getUser();
+  }, [dispatch]);
   return (
     <div className={styles.frame}>
       <div>
@@ -16,14 +42,14 @@ const Post: React.FC = () => {
             <textarea
               className={styles.textarea}
               placeholder="add a comment"
-              //   value={text}
+              value={text}
               onChange={(e) => setText(e.target.value)}
             />
             <button
               disabled={!text.length}
               className={styles.add_button}
               type="submit"
-              //   onClick={postComment}
+              onClick={postComment}
             >
               Add
             </button>

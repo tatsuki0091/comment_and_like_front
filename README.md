@@ -49,6 +49,9 @@ npx create-react-app . --template redux-typescript --use-npm
 
 # comment_and_like_front
 
-# axios
+# install these libralies
 
 npm install axios
+npm install formik
+npm i react-router-dom
+npm i @types/react-router-dom
