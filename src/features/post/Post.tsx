@@ -1,16 +1,40 @@
 import React, { useState, useEffect } from "react";
 import styles from "./Post.module.css";
 import {
-  fetchPostStart,
-  fetchPostEnd,
   fetchAsyncPostComment,
+  fetchAsyncGetComments,
+  selectComments,
+  setLiked,
+  resetLiked,
+  selectLiked,
 } from "./postSlice";
 import { AppDispatch } from "../../app/store";
 import { useSelector, useDispatch } from "react-redux";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faThumbsUp } from "@fortawesome/free-solid-svg-icons";
 
 const Post: React.FC = () => {
   const [text, setText] = useState("");
   const dispatch: AppDispatch = useDispatch();
+
+  useEffect(() => {
+    const fetchComments = async () => {
+      // if (localStorage.localJWT) {
+      await dispatch(fetchAsyncGetComments());
+      // }
+    };
+    fetchComments();
+  }, [dispatch]);
+
+  const commentList = useSelector(selectComments);
+  const liked = useSelector(selectLiked);
+
+  // Handle liked
+  const handleClick = (e: React.MouseEvent<HTMLElement>) => {
+    console.log("dddd");
+  };
+
+  // Register the comment
   const postComment = async (e: React.MouseEvent<HTMLElement>) => {
     // 無駄なリフレッシュを無効化
     e.preventDefault();
@@ -18,17 +42,9 @@ const Post: React.FC = () => {
       user_id: Number(localStorage.getItem("user_id")),
       text: text,
     };
-    console.log(packet);
-    await dispatch(fetchPostStart());
     await dispatch(fetchAsyncPostComment(packet));
-    await dispatch(fetchPostEnd());
     setText("");
   };
-
-  useEffect(() => {
-    const getUser = async () => {};
-    getUser();
-  }, [dispatch]);
   return (
     <div className={styles.frame}>
       <div>
@@ -38,7 +54,7 @@ const Post: React.FC = () => {
       </div>
       <div className={styles.commentBox}>
         <form className={styles.commentForm}>
-          <div className={styles.post_input}>
+          <div className={styles.postInput}>
             <textarea
               className={styles.textarea}
               placeholder="add a comment"
@@ -47,7 +63,7 @@ const Post: React.FC = () => {
             />
             <button
               disabled={!text.length}
-              className={styles.add_button}
+              className={styles.addButton}
               type="submit"
               onClick={postComment}
             >
@@ -57,16 +73,19 @@ const Post: React.FC = () => {
         </form>
       </div>
       <div className={styles.commentBox}>
-        <div className={styles.post_comments}>
-          <div className={styles.post_comment}>
-            <p>test</p>
-          </div>
-          {/* {commentsOnPost.map((comment) => (
-          <div key={comment.id} className={styles.post_comment}>
-            <p>{comment.text}</p>
-          </div>
-        ))} */}
-        </div>
+        {commentList.map((comment) => (
+          <>
+            <div key={comment.id} className={styles.commentSentence}>
+              <p className={styles.commentText}>{comment.text}　</p>
+              <div className={styles.thumsUp}>
+                <span onClick={handleClick}>
+                  <FontAwesomeIcon icon={faThumbsUp} />
+                </span>
+              </div>
+            </div>
+            <div className={styles.commentLiked}></div>
+          </>
+        ))}
       </div>
     </div>
   );
