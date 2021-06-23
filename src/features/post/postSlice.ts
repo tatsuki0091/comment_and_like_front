@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-
+import { RootState  } from '../../app/store';
 import axios from "axios";
 import {PROPS_COMMENT} from "../types"
 
@@ -17,46 +17,63 @@ export const fetchAsyncPostComment = createAsyncThunk(
         return res.data;
 });
 
+export const fetchAsyncGetComments = createAsyncThunk(
+    "comment/get",
+    async () => {
+        const res = await axios.get(`${apiURL}api/comment`, {
+            headers: {
+                "Content-Type": "application/json",
+            }
+        });
+        return res.data;
+});
+
 
 export const postSlice = createSlice({
     name: 'post',
     initialState: {
-        isLoadingPost: false,
-        posts: [
-            {
-                id:0,
-                title: "",
-                userPost: 0,
-                created_on: "",
-                img: "",
-                liked: [0],
-            }
-        ],
+        liked: false,
         comments: [
             {
                 id: 0,
                 text: "",
-                userComment: 0,
-                post: 0,
+                user_id: 0,
+                created_at: "",
             }
           ]
     },
     reducers: {
-        fetchPostStart(state) {
-            state.isLoadingPost = true;
+        setLiked(state) {
+            state.liked = true;
         },
-        fetchPostEnd(state) {
-            state.isLoadingPost = false;
+        resetLiked(state) {
+            state.liked = false;
         },
-
-    }
+    },
+    extraReducers: (builder) => {
+        builder.addCase(fetchAsyncGetComments.fulfilled, (state, action) => {
+            return {
+                ...state,
+                comments: action.payload,
+            }
+        });
+        builder.addCase(fetchAsyncPostComment.fulfilled, (state, action) => {
+            return {
+                ...state,
+                comments: [...state.comments, action.payload],
+            }
+        });
+      }
   });
 
-// Register about Reducer things
-export const { 
-    fetchPostStart, 
-    fetchPostEnd, 
-} = postSlice.actions;
-  
 
+export const { 
+    setLiked, 
+    resetLiked, 
+} = postSlice.actions;
+
+
+// Comments state
+export const selectComments = (state: RootState) => state.post.comments;
+export const selectLiked = (state: RootState) => state.post.liked;
 export default postSlice.reducer;
