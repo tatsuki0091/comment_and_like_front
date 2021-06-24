@@ -58,3 +58,6 @@ npm i @types/react-router-dom
 npm i --save @fortawesome/free-solid-svg-icons
 npm i @types/react-fontawesome
 npm i --save @fortawesome/fontawesome-svg-core
+npm i @types/styled-components
+npm install --save styled-components
+npm i @material-ui/core

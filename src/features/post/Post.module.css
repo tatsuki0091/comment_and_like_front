@@ -63,3 +63,11 @@
 
 .commentText {
 }
+
+.likedButtonColor {
+  color: #0000ff;
+}
+
+.likedBox:checked {
+  color: #0000ff;
+}
