@@ -6,11 +6,13 @@ import {
   fetchAsyncPostComment,
   fetchAsyncGetComments,
   selectComments,
-  fetchAsyncPostLiked,
-  selectLiked,
+  fetchAsyncPostLike,
+  selectLike,
   selectIsLoadingPost,
   fetchPostStart,
   fetchPostEnd,
+  fetchAsyncIsFavorite,
+  fetchAsyncDeleteLike,
 } from "./postSlice";
 import { AppDispatch } from "../../app/store";
 import { useSelector, useDispatch } from "react-redux";
@@ -52,19 +54,31 @@ const Post: React.FC = () => {
   }, [dispatch]);
 
   const commentList = useSelector(selectComments);
-  const liked = useSelector(selectLiked);
-  // Handle liked
-  const handlerLiked = async (comment_id: number, user_id: number) => {
+  const like = useSelector(selectLike);
+  // Handle like
+  const handlerLike = async (comment_id: number, user_id: number) => {
     const packet = {
       comment_id: comment_id,
       user_id: user_id,
     };
-    console.log(comment_id);
-    console.log(user_id);
-    await dispatch(fetchPostStart());
-    await dispatch(fetchAsyncPostLiked(packet));
-    await dispatch(fetchPostEnd());
-    console.log("huhuhu");
+
+    const resultReg = await dispatch(fetchAsyncIsFavorite(packet));
+
+    if (fetchAsyncIsFavorite.fulfilled.match(resultReg)) {
+      if (
+        resultReg.payload.id !== "" &&
+        resultReg.payload.id !== null &&
+        typeof resultReg.payload.id !== "undefined"
+      ) {
+        await dispatch(fetchPostStart());
+        await dispatch(fetchAsyncDeleteLike(packet));
+        await dispatch(fetchPostEnd());
+      } else {
+        await dispatch(fetchPostStart());
+        await dispatch(fetchAsyncPostLike(packet));
+        await dispatch(fetchPostEnd());
+      }
+    }
   };
 
   // Register the comment
@@ -115,21 +129,21 @@ const Post: React.FC = () => {
                     icon={<ThumbUp />}
                     checkedIcon={<ThumbUp />}
                     // defaultChecked={this.state.chkbox}
-                    className={styles.likedBox}
-                    onChange={() => handlerLiked(comment.id, comment.user_id)}
+                    className={styles.likeBox}
+                    onChange={() => handlerLike(comment.id, comment.user_id)}
                   />
                 </ThemeProvider>
 
                 {/* <span>
                   <FontAwesomeIcon
                     icon={faThumbsUp}
-                    className={liked ? styles.likedButtonColor : ""}
+                    className={like ? styles.likeButtonColor : ""}
                     onClick={handleClick}
                   />
                 </span> */}
               </div>
             </div>
-            <div className={styles.commentLiked}></div>
+            <div className={styles.commentLike}></div>
           </>
         ))}
       </div>

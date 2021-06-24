@@ -1,9 +1,21 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { RootState  } from '../../app/store';
 import axios from "axios";
-import {PROPS_COMMENT, PROPS_LIKED} from "../types"
+import {PROPS_COMMENT, PROPS_LIKE} from "../types"
 
 const apiURL = process.env.REACT_APP_DEV_API_URL;
+
+export const fetchAsyncIsFavorite = createAsyncThunk(
+    "like/get",
+    async (like: PROPS_LIKE) => {
+    const res = await axios.get(`${apiURL}api/is_favorite/${like.user_id}/${like.comment_id}`, 
+    {
+        headers: {
+            "Content-Type": "application/json",
+        }
+    });
+    return res.data;
+});
 
 
 export const fetchAsyncPostComment = createAsyncThunk(
@@ -28,10 +40,10 @@ export const fetchAsyncGetComments = createAsyncThunk(
         return res.data;
 });
 
-export const fetchAsyncPostLiked = createAsyncThunk(
-    "liked/post",
-    async (liked: PROPS_LIKED) => {
-        const res = await axios.post(`${apiURL}api/liked`, liked,{
+export const fetchAsyncPostLike = createAsyncThunk(
+    "like/post",
+    async (like: PROPS_LIKE) => {
+        const res = await axios.post(`${apiURL}api/like`, like,{
             headers: {
                 "Content-Type": "application/json",
             }
@@ -40,20 +52,20 @@ export const fetchAsyncPostLiked = createAsyncThunk(
         
         // let isOverlapped = false;
         // // 一度likeが押されている場合はそのユーザIDを抜くのでそのユーザの判定処理
-        // currentLiked.forEach((current) => {
-        //     if (current === liked.new) {
+        // currentLike.forEach((current) => {
+        //     if (current === like.new) {
         //         isOverlapped = true;
         //     } else {
-        //         uploadData.append("Liked", String(current))
+        //         uploadData.append("Like", String(current))
         //     }
         // });
 
         // if(!isOverlapped) { 
-        //     uploadData.append("liked", String(liked.new));
-        // } else if(currentLiked.length === 1) {
-        //     uploadData.append("title", liked.title);
+        //     uploadData.append("like", String(like.new));
+        // } else if(currentLike.length === 1) {
+        //     uploadData.append("title", like.title);
         //     // httpのpatchメソッドだと何もない状態にすることができないのでputを使用
-        //     const res = await axios.put(`${apiUrlPost}${liked.id}/`, uploadData, {
+        //     const res = await axios.put(`${apiUrlPost}${like.id}/`, uploadData, {
         //         headers: {
         //             "Content-Type": "application/json",
         //             Authorization: `JWT ${localStorage.localJWT}`
@@ -62,7 +74,7 @@ export const fetchAsyncPostLiked = createAsyncThunk(
         //     return res.data
         // }
 
-        // const res = await axios.patch(`${apiUrlPost}${liked.id}/`, uploadData, {
+        // const res = await axios.patch(`${apiUrlPost}${like.id}/`, uploadData, {
         //     headers: {
         //             "Content-Type": "application/json",
         //             Authorization: `JWT ${localStorage.localJWT}`
@@ -72,11 +84,27 @@ export const fetchAsyncPostLiked = createAsyncThunk(
 
 });
 
+export const fetchAsyncDeleteLike = createAsyncThunk(
+    "like/delete",
+    async (like: PROPS_LIKE) => {
+        console.log('delete')
+        const res = await axios.delete(`${apiURL}api/like`, {
+            headers: {
+                "Content-Type": "application/json",
+            },
+            data: {
+                like: like
+            }
+        });
+        return res.data;
+});
+
 export const postSlice = createSlice({
     name: 'post',
     initialState: {
         isLoadingPost: false,
-        liked: [
+        isFavorite: false,
+        like: [
             {
                 id: 0,
                 comment_id: "",
@@ -113,10 +141,16 @@ export const postSlice = createSlice({
                 comments: [...state.comments, action.payload],
             }
         });
-        builder.addCase(fetchAsyncPostLiked.fulfilled, (state, action) => {
+        // builder.addCase(fetchAsyncIsFavorite.fulfilled, (state, action) => {
+        //     return {
+        //         ...state,
+        //         like: action.payload,
+        //     }
+        // });
+        builder.addCase(fetchAsyncPostLike.fulfilled, (state, action) => {
             return {
                 ...state,
-                liked: [...state.liked, action.payload],
+                like: [...state.like, action.payload],
             }
         });
       }
@@ -132,5 +166,6 @@ export const {
 // Comments state
 export const selectIsLoadingPost = (state: RootState) => state.post.isLoadingPost;
 export const selectComments = (state: RootState) => state.post.comments;
-export const selectLiked = (state: RootState) => state.post.liked;
+export const selectLike = (state: RootState) => state.post.like;
+export const selectIsFavorite = (state: RootState) => state.post.isLoadingPost;
 export default postSlice.reducer;

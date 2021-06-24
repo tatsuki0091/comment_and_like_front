@@ -1,4 +1,4 @@
-// export interface PROPS_LIKED {
+// export interface PROPS_LIKE {
 //     id: number;
 //     title:string;
 //     current:number[]
@@ -17,7 +17,12 @@ export interface PROPS_LOGIN {
 
 }
 
-export interface PROPS_LIKED {
+export interface PROPS_LIKE {
+    comment_id: number;
+    user_id: number;
+}
+
+export interface IS_FACORITE {
     comment_id: number;
     user_id: number;
 }
