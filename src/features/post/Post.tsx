@@ -4,8 +4,8 @@ import { Checkbox, createMuiTheme, ThemeProvider } from "@material-ui/core";
 import { ThumbUp } from "@material-ui/icons";
 import {
   fetchAsyncPostComment,
-  fetchAsyncGetComments,
-  selectComments,
+  fetchAsyncGetCommentsAndLikeCounts,
+  selectCommentsAndLikeCounts,
   fetchAsyncPostLike,
   selectLike,
   selectIsLoadingPost,
@@ -13,6 +13,8 @@ import {
   fetchPostEnd,
   fetchAsyncIsFavorite,
   fetchAsyncDeleteLike,
+  fetchAsyncGetLikes,
+  selectLikeCount,
 } from "./postSlice";
 import { AppDispatch } from "../../app/store";
 import { useSelector, useDispatch } from "react-redux";
@@ -41,25 +43,26 @@ const theme = createMuiTheme({
 
 const Post: React.FC = () => {
   const [text, setText] = useState("");
-  const isLoadingPost = useSelector(selectIsLoadingPost);
+  // const isLoadingPost = useSelector(selectIsLoadingPost);
   const dispatch: AppDispatch = useDispatch();
 
   useEffect(() => {
     const fetchComments = async () => {
       // if (localStorage.localJWT) {
-      await dispatch(fetchAsyncGetComments());
+      await dispatch(fetchAsyncGetCommentsAndLikeCounts());
+      //await dispatch(fetchAsyncGetLikes());
       // }
     };
     fetchComments();
   }, [dispatch]);
 
-  const commentList = useSelector(selectComments);
-  const like = useSelector(selectLike);
+  const commentList = useSelector(selectCommentsAndLikeCounts);
+  const likeCount = useSelector(selectLikeCount);
   // Handle like
-  const handlerLike = async (comment_id: number, user_id: number) => {
+  const handlerLike = async (comment_id: number) => {
     const packet = {
       comment_id: comment_id,
-      user_id: user_id,
+      user_id: localStorage.user_id,
     };
 
     const resultReg = await dispatch(fetchAsyncIsFavorite(packet));
@@ -119,10 +122,10 @@ const Post: React.FC = () => {
         </form>
       </div>
       <div className={styles.commentBox}>
-        {commentList.map((comment) => (
+        {commentList.map((commentAndCount) => (
           <>
-            <div key={comment.id} className={styles.commentSentence}>
-              <p className={styles.commentText}>{comment.text}　</p>
+            <div key={commentAndCount.id} className={styles.commentSentence}>
+              <p className={styles.commentText}>{commentAndCount.text}　</p>
               <div className={styles.thumsUp}>
                 <ThemeProvider theme={theme}>
                   <Checkbox
@@ -130,9 +133,10 @@ const Post: React.FC = () => {
                     checkedIcon={<ThumbUp />}
                     // defaultChecked={this.state.chkbox}
                     className={styles.likeBox}
-                    onChange={() => handlerLike(comment.id, comment.user_id)}
+                    onChange={() => handlerLike(commentAndCount.id)}
                   />
                 </ThemeProvider>
+                <p>{commentAndCount.count}　</p>
 
                 {/* <span>
                   <FontAwesomeIcon

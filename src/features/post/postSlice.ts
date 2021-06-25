@@ -29,7 +29,7 @@ export const fetchAsyncPostComment = createAsyncThunk(
         return res.data;
 });
 
-export const fetchAsyncGetComments = createAsyncThunk(
+export const fetchAsyncGetCommentsAndLikeCounts = createAsyncThunk(
     "comment/get",
     async () => {
         const res = await axios.get(`${apiURL}api/comment`, {
@@ -37,6 +37,7 @@ export const fetchAsyncGetComments = createAsyncThunk(
                 "Content-Type": "application/json",
             }
         });
+        console.log(res)
         return res.data;
 });
 
@@ -99,11 +100,37 @@ export const fetchAsyncDeleteLike = createAsyncThunk(
         return res.data;
 });
 
+export const fetchAsyncGetLikes = createAsyncThunk(
+    "like/get",
+    async () => {
+        const res = await axios.get(`${apiURL}api/count_like`, {
+            headers: {
+                "Content-Type": "application/json",
+            }
+        });
+        return res.data;
+});
+
 export const postSlice = createSlice({
     name: 'post',
     initialState: {
         isLoadingPost: false,
-        isFavorite: false,
+        commentsAndLikeCounts: [
+            {
+                id: 0,
+                text: "",
+                count:0,
+                user_id: 0,
+                created_at: "",
+
+            }
+        ],
+        countLike: [
+            {
+                comment_id:"",
+                count: 0
+            }
+        ],
         like: [
             {
                 id: 0,
@@ -117,6 +144,7 @@ export const postSlice = createSlice({
                 text: "",
                 user_id: 0,
                 created_at: "",
+                
             }
           ]
     },
@@ -129,10 +157,10 @@ export const postSlice = createSlice({
         },
     },
     extraReducers: (builder) => {
-        builder.addCase(fetchAsyncGetComments.fulfilled, (state, action) => {
+        builder.addCase(fetchAsyncGetCommentsAndLikeCounts.fulfilled, (state, action) => {
             return {
                 ...state,
-                comments: action.payload,
+                commentsAndLikeCounts: action.payload,
             }
         });
         builder.addCase(fetchAsyncPostComment.fulfilled, (state, action) => {
@@ -141,12 +169,12 @@ export const postSlice = createSlice({
                 comments: [...state.comments, action.payload],
             }
         });
-        // builder.addCase(fetchAsyncIsFavorite.fulfilled, (state, action) => {
-        //     return {
-        //         ...state,
-        //         like: action.payload,
-        //     }
-        // });
+        builder.addCase(fetchAsyncGetLikes.fulfilled, (state, action) => {
+            return {
+                ...state,
+                countLike: action.payload,
+            }
+        });
         builder.addCase(fetchAsyncPostLike.fulfilled, (state, action) => {
             return {
                 ...state,
@@ -165,7 +193,8 @@ export const {
 
 // Comments state
 export const selectIsLoadingPost = (state: RootState) => state.post.isLoadingPost;
-export const selectComments = (state: RootState) => state.post.comments;
+export const selectCommentsAndLikeCounts = (state: RootState) => state.post.commentsAndLikeCounts;
 export const selectLike = (state: RootState) => state.post.like;
-export const selectIsFavorite = (state: RootState) => state.post.isLoadingPost;
+export const selectLikeCount = (state: RootState) => state.post.countLike;
+// export const selectIsFavorite = (state: RootState) => state.post.isLoadingPost;
 export default postSlice.reducer;

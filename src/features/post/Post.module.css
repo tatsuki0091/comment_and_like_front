@@ -61,10 +61,6 @@
   align-items: center;
 }
 
-.likeButtonColor {
-  color: #0000ff;
-}
-
-.likeBox:checked {
-  color: #0000ff;
+.commentText {
+  word-break: break-all;
 }
