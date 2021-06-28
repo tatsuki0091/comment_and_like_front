@@ -29,7 +29,6 @@ export const authSlice = createSlice({
     extraReducers: (builder) => {
       // fetchAsyncLoginメソッドがfulfilledだった場合の処理
       builder.addCase(fetchAsyncLogin.fulfilled, (state, action) => {
-        console.log('iuoui')
         localStorage.setItem("user_id", action.payload['id']);
       });
     }   

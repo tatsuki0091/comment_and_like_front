@@ -18,9 +18,9 @@ const Login: React.FC = () => {
           // Check result
           if (fetchAsyncLogin.fulfilled.match(resultReg)) {
             if (
-              resultReg.payload["id"] !== "" &&
-              resultReg.payload["id"] !== null &&
-              typeof resultReg.payload["id"] !== "undefined"
+              resultReg.payload.id !== "" &&
+              resultReg.payload.id !== null &&
+              typeof resultReg.payload.id !== "undefined"
             ) {
               localStorage.setItem("user_id", resultReg.payload["id"]);
               await history.push(`/post/${resultReg.payload["id"]}`);

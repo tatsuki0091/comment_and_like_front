@@ -43,9 +43,15 @@
   margin-right: 8%;
 }
 
-.addButton {
+.addButtonActive {
   border-radius: 0.67em;
   background-color: #0000ff;
+  color: #ffffff;
+}
+
+.addButtonInActive {
+  border-radius: 0.67em;
+  background-color: #708090;
   color: #ffffff;
 }
 
@@ -62,4 +68,5 @@
 }
 
 .commentText {
+  word-break: break-all;
 }

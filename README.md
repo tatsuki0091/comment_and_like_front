@@ -55,6 +55,4 @@ npm install axios
 npm install formik
 npm i react-router-dom
 npm i @types/react-router-dom
-npm i --save @fortawesome/free-solid-svg-icons
-npm i @types/react-fontawesome
-npm i --save @fortawesome/fontawesome-svg-core
+npm i @material-ui/core
