@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { RootState  } from '../../app/store';
 import axios from "axios";
-import {PROPS_COMMENT, PROPS_LIKE} from "../types"
+import {PROPS_COMMENT, PROPS_LIKE, USER_INFO, NEW_COUNT_LIKE_AND_COMMENTS} from "../types"
 
 const apiURL = process.env.REACT_APP_DEV_API_URL;
 
@@ -21,7 +21,7 @@ export const fetchAsyncIsFavorite = createAsyncThunk(
 export const fetchAsyncPostComment = createAsyncThunk(
     "comment/post",
     async (comment: PROPS_COMMENT) => {
-        const res = await axios.post(`${apiURL}api/comment`, comment,{
+        const res = await axios.post(`${apiURL}api/post_comment`, comment,{
             headers: {
                 "Content-Type": "application/json",
             }
@@ -31,13 +31,12 @@ export const fetchAsyncPostComment = createAsyncThunk(
 
 export const fetchAsyncGetCommentsAndLikeCounts = createAsyncThunk(
     "comment/get",
-    async () => {
-        const res = await axios.get(`${apiURL}api/comment`, {
+    async (user_info: USER_INFO) => {
+        const res = await axios.get(`${apiURL}api/get_comment/${user_info}`, {
             headers: {
                 "Content-Type": "application/json",
             }
         });
-        console.log(res)
         return res.data;
 });
 
@@ -50,45 +49,11 @@ export const fetchAsyncPostLike = createAsyncThunk(
             }
         });
         return res.data;
-        
-        // let isOverlapped = false;
-        // // 一度likeが押されている場合はそのユーザIDを抜くのでそのユーザの判定処理
-        // currentLike.forEach((current) => {
-        //     if (current === like.new) {
-        //         isOverlapped = true;
-        //     } else {
-        //         uploadData.append("Like", String(current))
-        //     }
-        // });
-
-        // if(!isOverlapped) { 
-        //     uploadData.append("like", String(like.new));
-        // } else if(currentLike.length === 1) {
-        //     uploadData.append("title", like.title);
-        //     // httpのpatchメソッドだと何もない状態にすることができないのでputを使用
-        //     const res = await axios.put(`${apiUrlPost}${like.id}/`, uploadData, {
-        //         headers: {
-        //             "Content-Type": "application/json",
-        //             Authorization: `JWT ${localStorage.localJWT}`
-        //         }
-        //     });
-        //     return res.data
-        // }
-
-        // const res = await axios.patch(`${apiUrlPost}${like.id}/`, uploadData, {
-        //     headers: {
-        //             "Content-Type": "application/json",
-        //             Authorization: `JWT ${localStorage.localJWT}`
-        //     }
-        // });
-        // return res.data;
-
 });
 
 export const fetchAsyncDeleteLike = createAsyncThunk(
     "like/delete",
     async (like: PROPS_LIKE) => {
-        console.log('delete')
         const res = await axios.delete(`${apiURL}api/like`, {
             headers: {
                 "Content-Type": "application/json",
@@ -120,6 +85,7 @@ export const postSlice = createSlice({
                 id: 0,
                 text: "",
                 count:0,
+                liked:false,
                 user_id: 0,
                 created_at: "",
 
@@ -127,7 +93,6 @@ export const postSlice = createSlice({
         ],
         countLike: [
             {
-                comment_id:"",
                 count: 0
             }
         ],
@@ -155,6 +120,12 @@ export const postSlice = createSlice({
         fetchPostEnd(state) {
             state.isLoadingPost = false;
         },
+        fetchCount(state, action) {
+            return {
+                ...state,
+                commentsAndLikeCounts: action.payload,
+            }
+        }
     },
     extraReducers: (builder) => {
         builder.addCase(fetchAsyncGetCommentsAndLikeCounts.fulfilled, (state, action) => {
@@ -166,7 +137,7 @@ export const postSlice = createSlice({
         builder.addCase(fetchAsyncPostComment.fulfilled, (state, action) => {
             return {
                 ...state,
-                comments: [...state.comments, action.payload],
+                commentsAndLikeCounts: [...state.commentsAndLikeCounts, action.payload],
             }
         });
         builder.addCase(fetchAsyncGetLikes.fulfilled, (state, action) => {
@@ -188,6 +159,8 @@ export const postSlice = createSlice({
 export const { 
     fetchPostStart,
     fetchPostEnd,
+    fetchCount
+    
 } = postSlice.actions;
 
 

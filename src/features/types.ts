@@ -26,3 +26,31 @@ export interface IS_FACORITE {
     comment_id: number;
     user_id: number;
 }
+
+export interface USER_INFO {
+    user_id: number;
+}
+
+// export interface NEW_COUNT_LIKE_AND_COMMENTS {
+//     id: number;
+//     text: string;
+//     count:number;
+//     liked:boolean;
+//     user_id: number;
+//     created_at: string;
+    
+// }
+
+export interface NEW_COUNT_LIKE_AND_COMMENTS {
+
+    countLikeAndComments:{
+        id: number;
+        text: string;
+        count:number;
+        liked:boolean;
+        user_id: number;
+        created_at: string;
+    }[]
+    
+    
+}

@@ -11,6 +11,7 @@ import {
   selectIsLoadingPost,
   fetchPostStart,
   fetchPostEnd,
+  fetchCount,
   fetchAsyncIsFavorite,
   fetchAsyncDeleteLike,
   fetchAsyncGetLikes,
@@ -49,7 +50,7 @@ const Post: React.FC = () => {
   useEffect(() => {
     const fetchComments = async () => {
       // if (localStorage.localJWT) {
-      await dispatch(fetchAsyncGetCommentsAndLikeCounts());
+      await dispatch(fetchAsyncGetCommentsAndLikeCounts(localStorage.user_id));
       //await dispatch(fetchAsyncGetLikes());
       // }
     };
@@ -57,13 +58,20 @@ const Post: React.FC = () => {
   }, [dispatch]);
 
   const commentList = useSelector(selectCommentsAndLikeCounts);
-  const likeCount = useSelector(selectLikeCount);
+
+  // const likeCount = useSelector(selectLikeCount);
   // Handle like
-  const handlerLike = async (comment_id: number) => {
+  const handleLike = async (
+    comment_id: number,
+    liked: boolean,
+    commentList: any
+  ) => {
     const packet = {
       comment_id: comment_id,
       user_id: localStorage.user_id,
     };
+
+    const newState: any[] = new Array();
 
     const resultReg = await dispatch(fetchAsyncIsFavorite(packet));
 
@@ -73,13 +81,65 @@ const Post: React.FC = () => {
         resultReg.payload.id !== null &&
         typeof resultReg.payload.id !== "undefined"
       ) {
+        for (var item in commentList) {
+          if (comment_id === commentList[Number(item)].id) {
+            const rduceState = {
+              id: commentList[item].id,
+              text: commentList[item].text,
+              count: commentList[item].count - 1,
+              liked: commentList[item].liked,
+              user_id: commentList[item].user_id,
+              created_at: commentList[item].created_at,
+            };
+            newState.push(rduceState);
+          } else {
+            const rduceState = {
+              id: commentList[item].id,
+              text: commentList[item].text,
+              count: commentList[item].count,
+              liked: commentList[item].liked,
+              user_id: commentList[item].user_id,
+              created_at: commentList[item].created_at,
+            };
+            newState.push(rduceState);
+          }
+        }
         await dispatch(fetchPostStart());
         await dispatch(fetchAsyncDeleteLike(packet));
         await dispatch(fetchPostEnd());
+        await dispatch(fetchCount(newState));
       } else {
+        for (var item in commentList) {
+          if (comment_id === commentList[Number(item)].id) {
+            const rduceState = {
+              id: commentList[item].id,
+              text: commentList[item].text,
+              count: commentList[item].count + 1,
+              liked: commentList[item].liked,
+              user_id: commentList[item].user_id,
+              created_at: commentList[item].created_at,
+            };
+            newState.push(rduceState);
+          } else {
+            const rduceState = {
+              id: commentList[item].id,
+              text: commentList[item].text,
+              count: commentList[item].count,
+              liked: commentList[item].liked,
+              user_id: commentList[item].user_id,
+              created_at: commentList[item].created_at,
+            };
+            newState.push(rduceState);
+          }
+        }
         await dispatch(fetchPostStart());
         await dispatch(fetchAsyncPostLike(packet));
         await dispatch(fetchPostEnd());
+        await dispatch(fetchCount(newState));
+
+        // await dispatch(
+        //   fetchAsyncGetCommentsAndLikeCounts(localStorage.user_id)
+        // );
       }
     }
   };
@@ -131,12 +191,25 @@ const Post: React.FC = () => {
                   <Checkbox
                     icon={<ThumbUp />}
                     checkedIcon={<ThumbUp />}
+                    defaultChecked={commentAndCount.liked}
                     // defaultChecked={this.state.chkbox}
                     className={styles.likeBox}
-                    onChange={() => handlerLike(commentAndCount.id)}
+                    onChange={() =>
+                      handleLike(
+                        commentAndCount.id,
+                        commentAndCount.liked,
+                        commentList
+                      )
+                    }
                   />
                 </ThemeProvider>
-                <p>{commentAndCount.count}　</p>
+
+                {commentAndCount.count !== null &&
+                typeof commentAndCount.count !== "undefined" ? (
+                  <p>{commentAndCount.count}</p>
+                ) : (
+                  <p>0</p>
+                )}
 
                 {/* <span>
                   <FontAwesomeIcon
