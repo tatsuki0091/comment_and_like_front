@@ -7,21 +7,14 @@ import {
   fetchAsyncGetCommentsAndLikeCounts,
   selectCommentsAndLikeCounts,
   fetchAsyncPostLike,
-  selectLike,
-  selectIsLoadingPost,
   fetchPostStart,
   fetchPostEnd,
   fetchCount,
   fetchAsyncIsFavorite,
   fetchAsyncDeleteLike,
-  fetchAsyncGetLikes,
-  selectLikeCount,
 } from "./postSlice";
 import { AppDispatch } from "../../app/store";
 import { useSelector, useDispatch } from "react-redux";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faThumbsUp } from "@fortawesome/free-solid-svg-icons";
-import styled, { css } from "styled-components";
 
 const theme = createMuiTheme({
   overrides: {
@@ -74,74 +67,137 @@ const Post: React.FC = () => {
     const newState: any[] = new Array();
 
     const resultReg = await dispatch(fetchAsyncIsFavorite(packet));
-
     if (fetchAsyncIsFavorite.fulfilled.match(resultReg)) {
+      let count = 0;
+
+      for (var item in commentList) {
+        if (comment_id === commentList[Number(item)].id) {
+          // TODO 数字のカウントを修正する
+          if (
+            resultReg.payload.id !== "" &&
+            resultReg.payload.id !== null &&
+            typeof resultReg.payload.id !== "undefined"
+          ) {
+            count = commentList[item].count - 1;
+          } else {
+            count = commentList[item].count + 1;
+          }
+
+          if (typeof commentList[item].count === "undefined") {
+            count = 1;
+          }
+          const rduceState = {
+            id: commentList[item].id,
+            text: commentList[item].text,
+            count: count,
+            liked: commentList[item].liked,
+            user_id: commentList[item].user_id,
+            created_at: commentList[item].created_at,
+          };
+          newState.push(rduceState);
+        } else {
+          const rduceState = {
+            id: commentList[item].id,
+            text: commentList[item].text,
+            count: commentList[item].count,
+            liked: commentList[item].liked,
+            user_id: commentList[item].user_id,
+            created_at: commentList[item].created_at,
+          };
+          newState.push(rduceState);
+        }
+      }
+
+      // Sort array
+      newState.sort(function (a, b) {
+        if (a.id > b.id) return 1;
+        if (a.id < b.id) return -1;
+        // a must be equal to b
+        return 0;
+      });
+
+      await dispatch(fetchPostStart());
+
       if (
         resultReg.payload.id !== "" &&
         resultReg.payload.id !== null &&
         typeof resultReg.payload.id !== "undefined"
       ) {
-        for (var item in commentList) {
-          if (comment_id === commentList[Number(item)].id) {
-            const rduceState = {
-              id: commentList[item].id,
-              text: commentList[item].text,
-              count: commentList[item].count - 1,
-              liked: commentList[item].liked,
-              user_id: commentList[item].user_id,
-              created_at: commentList[item].created_at,
-            };
-            newState.push(rduceState);
-          } else {
-            const rduceState = {
-              id: commentList[item].id,
-              text: commentList[item].text,
-              count: commentList[item].count,
-              liked: commentList[item].liked,
-              user_id: commentList[item].user_id,
-              created_at: commentList[item].created_at,
-            };
-            newState.push(rduceState);
-          }
-        }
-        await dispatch(fetchPostStart());
         await dispatch(fetchAsyncDeleteLike(packet));
-        await dispatch(fetchPostEnd());
-        await dispatch(fetchCount(newState));
       } else {
-        for (var item in commentList) {
-          if (comment_id === commentList[Number(item)].id) {
-            const rduceState = {
-              id: commentList[item].id,
-              text: commentList[item].text,
-              count: commentList[item].count + 1,
-              liked: commentList[item].liked,
-              user_id: commentList[item].user_id,
-              created_at: commentList[item].created_at,
-            };
-            newState.push(rduceState);
-          } else {
-            const rduceState = {
-              id: commentList[item].id,
-              text: commentList[item].text,
-              count: commentList[item].count,
-              liked: commentList[item].liked,
-              user_id: commentList[item].user_id,
-              created_at: commentList[item].created_at,
-            };
-            newState.push(rduceState);
-          }
-        }
-        await dispatch(fetchPostStart());
         await dispatch(fetchAsyncPostLike(packet));
-        await dispatch(fetchPostEnd());
-        await dispatch(fetchCount(newState));
-
-        // await dispatch(
-        //   fetchAsyncGetCommentsAndLikeCounts(localStorage.user_id)
-        // );
       }
+      await dispatch(fetchPostEnd());
+      await dispatch(fetchCount(newState));
     }
+
+    // if (fetchAsyncIsFavorite.fulfilled.match(resultReg)) {
+    //   if (
+    //     resultReg.payload.id !== "" &&
+    //     resultReg.payload.id !== null &&
+    //     typeof resultReg.payload.id !== "undefined"
+    //   ) {
+    //     for (var item in commentList) {
+    //       if (comment_id === commentList[Number(item)].id) {
+    //         const rduceState = {
+    //           id: commentList[item].id,
+    //           text: commentList[item].text,
+    //           count: commentList[item].count - 1,
+    //           liked: commentList[item].liked,
+    //           user_id: commentList[item].user_id,
+    //           created_at: commentList[item].created_at,
+    //         };
+    //         newState.push(rduceState);
+    //       } else {
+    //         const rduceState = {
+    //           id: commentList[item].id,
+    //           text: commentList[item].text,
+    //           count: commentList[item].count,
+    //           liked: commentList[item].liked,
+    //           user_id: commentList[item].user_id,
+    //           created_at: commentList[item].created_at,
+    //         };
+    //         newState.push(rduceState);
+    //       }
+    //     }
+    //     await dispatch(fetchPostStart());
+    //     await dispatch(fetchAsyncDeleteLike(packet));
+    //     await dispatch(fetchPostEnd());
+    //     await dispatch(fetchCount(newState));
+    //   } else {
+    //     for (var item in commentList) {
+    //       if (comment_id === commentList[Number(item)].id) {
+    //         const rduceState = {
+    //           id: commentList[item].id,
+    //           text: commentList[item].text,
+    //           count: commentList[item].count + 1,
+    //           liked: commentList[item].liked,
+    //           user_id: commentList[item].user_id,
+    //           created_at: commentList[item].created_at,
+    //         };
+    //         newState.push(rduceState);
+    //       } else {
+    //         const rduceState = {
+    //           id: commentList[item].id,
+    //           text: commentList[item].text,
+    //           count: commentList[item].count,
+    //           liked: commentList[item].liked,
+    //           user_id: commentList[item].user_id,
+    //           created_at: commentList[item].created_at,
+    //         };
+    //         newState.push(rduceState);
+    //       }
+    //     }
+    //     await dispatch(fetchPostStart());
+    //     await dispatch(fetchAsyncPostLike(packet));
+    //     await dispatch(fetchPostEnd());
+    //     await dispatch(fetchCount(newState));
+
+    //     // await dispatch(
+    //     //   fetchAsyncGetCommentsAndLikeCounts(localStorage.user_id)
+    //     // );
+    //   }
+    // }
   };
 
   // Register the comment
@@ -172,7 +228,11 @@ const Post: React.FC = () => {
             />
             <button
               disabled={!text.length}
-              className={styles.addButton}
+              className={
+                text.length === 0
+                  ? styles.addButtonInActive
+                  : styles.addButtonActive
+              }
               type="submit"
               onClick={postComment}
             >
@@ -183,8 +243,8 @@ const Post: React.FC = () => {
       </div>
       <div className={styles.commentBox}>
         {commentList.map((commentAndCount) => (
-          <>
-            <div key={commentAndCount.id} className={styles.commentSentence}>
+          <div key={commentAndCount.id}>
+            <div className={styles.commentSentence}>
               <p className={styles.commentText}>{commentAndCount.text}　</p>
               <div className={styles.thumsUp}>
                 <ThemeProvider theme={theme}>
@@ -192,7 +252,6 @@ const Post: React.FC = () => {
                     icon={<ThumbUp />}
                     checkedIcon={<ThumbUp />}
                     defaultChecked={commentAndCount.liked}
-                    // defaultChecked={this.state.chkbox}
                     className={styles.likeBox}
                     onChange={() =>
                       handleLike(
@@ -210,18 +269,11 @@ const Post: React.FC = () => {
                 ) : (
                   <p>0</p>
                 )}
-
-                {/* <span>
-                  <FontAwesomeIcon
-                    icon={faThumbsUp}
-                    className={like ? styles.likeButtonColor : ""}
-                    onClick={handleClick}
-                  />
-                </span> */}
               </div>
+
+              <div className={styles.commentLike}></div>
             </div>
-            <div className={styles.commentLike}></div>
-          </>
+          </div>
         ))}
       </div>
     </div>

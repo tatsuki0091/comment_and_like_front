@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { RootState  } from '../../app/store';
 import axios from "axios";
-import {PROPS_COMMENT, PROPS_LIKE, USER_INFO, NEW_COUNT_LIKE_AND_COMMENTS} from "../types"
+import {PROPS_COMMENT, PROPS_LIKE, USER_INFO} from "../types"
 
 const apiURL = process.env.REACT_APP_DEV_API_URL;
 
@@ -65,16 +65,16 @@ export const fetchAsyncDeleteLike = createAsyncThunk(
         return res.data;
 });
 
-export const fetchAsyncGetLikes = createAsyncThunk(
-    "like/get",
-    async () => {
-        const res = await axios.get(`${apiURL}api/count_like`, {
-            headers: {
-                "Content-Type": "application/json",
-            }
-        });
-        return res.data;
-});
+// export const fetchAsyncGetLikes = createAsyncThunk(
+//     "like/get",
+//     async () => {
+//         const res = await axios.get(`${apiURL}api/count_like`, {
+//             headers: {
+//                 "Content-Type": "application/json",
+//             }
+//         });
+//         return res.data;
+// });
 
 export const postSlice = createSlice({
     name: 'post',
@@ -140,12 +140,12 @@ export const postSlice = createSlice({
                 commentsAndLikeCounts: [...state.commentsAndLikeCounts, action.payload],
             }
         });
-        builder.addCase(fetchAsyncGetLikes.fulfilled, (state, action) => {
-            return {
-                ...state,
-                countLike: action.payload,
-            }
-        });
+        // builder.addCase(fetchAsyncGetLikes.fulfilled, (state, action) => {
+        //     return {
+        //         ...state,
+        //         countLike: action.payload,
+        //     }
+        // });
         builder.addCase(fetchAsyncPostLike.fulfilled, (state, action) => {
             return {
                 ...state,
