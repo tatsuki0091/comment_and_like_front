@@ -46,4 +46,13 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 # create react app
 
 npx create-react-app . --template redux-typescript --use-npm
+
 # comment_and_like_front
+
+# install these libralies
+
+npm install axios
+npm install formik
+npm i react-router-dom
+npm i @types/react-router-dom
+npm i @material-ui/core
