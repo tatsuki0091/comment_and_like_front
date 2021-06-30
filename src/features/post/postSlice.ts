@@ -3,7 +3,7 @@ import { RootState  } from '../../app/store';
 import axios from "axios";
 import {PROPS_COMMENT, PROPS_LIKE, USER_INFO} from "../types"
 
-const apiURL = process.env.REACT_APP_DEV_API_URL;
+const apiURL = process.env.REACT_APP_API_URL;
 
 export const fetchAsyncIsFavorite = createAsyncThunk(
     "like/get",
