@@ -3,7 +3,7 @@ import { RootState  } from '../../app/store';
 import axios from "axios";
 import {PROPS_COMMENT, PROPS_LIKE, USER_INFO} from "../types"
 
-const apiURL = process.env.REACT_APP_API_URL;
+const apiURL = "https://buddy-tree-backend-api.herokuapp.com/";
 
 export const fetchAsyncIsFavorite = createAsyncThunk(
     "like/get",

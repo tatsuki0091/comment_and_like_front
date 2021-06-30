@@ -2,8 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from "axios";
 import { PROPS_LOGIN } from "../types"
 
-const apiURL = process.env.REACT_APP_API_URL;
-console.log(apiURL)
+const apiURL = "https://buddy-tree-backend-api.herokuapp.com/";
 
 export const fetchAsyncLogin = createAsyncThunk (
     "login/post",
