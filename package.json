@@ -26,7 +26,6 @@
     "typescript": "^4.1.6"
   },
   "scripts": {
-    "postinstall": "gulp browserify",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
